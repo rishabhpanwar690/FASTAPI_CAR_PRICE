@@ -52,30 +52,34 @@ st.json(payload)
 
 if st.button("Predict Price 💰"):
     try:
-        res = requests.post(API_URL, json=payload, timeout=20)
+        res = requests.post(API_URL, json=payload, timeout=60)
+
         if res.status_code == 200:
             data = res.json()
 
-            # adjust keys based on your API response
-            # common patterns: {"prediction": 3.45} or {"predicted_price": 3.45}
-           pred = data.get(
-    "prediction_price",
-    data.get(
-        "prediction",
-        data.get("predicted_price", None)
-    )
-)
+            pred = data.get(
+                "prediction_price",
+                data.get(
+                    "prediction",
+                    data.get("predicted_price", None)
+                )
+            )
 
             if pred is None:
                 st.warning(
                     "API responded but prediction key not found. Full response below:"
                 )
                 st.json(data)
+
             else:
-                st.success(f"✅ Predicted Selling Price: **₹ {pred:.2f} lakhs**")
+                st.success(
+                    f"✅ Predicted Selling Price: **₹ {pred:.2f} lakhs**"
+                )
+
         else:
             st.error(f"❌ API Error {res.status_code}")
             st.code(res.text)
+
     except requests.exceptions.RequestException as e:
         st.error("❌ Could not connect to API. Is FastAPI running?")
         st.code(str(e))
